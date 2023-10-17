@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Gallery</title>
+</head>
+<style>
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #ccc;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  width: 80%;
+  max-width: 600px;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.popup-close:hover {
+  color: red;
+}
+
+/* Carousel Styles */
+.carousel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.carousel {
+  display: flex;
+  overflow: hidden;
+}
+
+.carousel img {
+  width: 300px;
+  margin: 0 10px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.carousel img:focus {
+  transform: scale(1.1);
+  border: 2px solid #3498db;
+}
+
+/* Arrow Buttons Styles */
+.arrow-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.arrow-buttons button {
+  margin: 0 10px;
+  padding: 10px 20px;
+  font-size: 18px;
+}
+/* Calendar Styles */
+.calendar {
+  background-color: #4850ca;
+  padding: 0px;
+  width: 250px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-top: 20px;
+  margin-left:700px;
+}
+
+.calendar .date {
+  text-align: center;
+  padding: 0px;
+  border-radius: 50%;
+  font-weight: bold;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin: 0px;
+  color: #fff;
+}
+
+.calendar .date.empty {
+  visibility: hidden;
+}
+
+.calendar .date .dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  background-color: #3498db;
+  border-radius: 50%;
+  margin: 0 auto;
+  margin-top: 0px;
+}
+
+    </style>
+<!-- ... Header and other HTML elements ... -->
+<header>
+    <div class="logo">
+      <img src="photos/Hunkus.jpeg" alt="Your Logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="library.html">Library</a></li>
+        <li><a href="todo.html">To-Do</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+      </ul>
+    </nav>
+  </header>
+
+
+  <body>
+    <div class="carousel-container">
+      <button onclick="prevPhoto()">◄</button>
+      <div class="carousel">
+        <!-- Photos will be added here -->
+      </div>
+
+      <button onclick="nextPhoto()">►</button>
+    </div>
+  
+    <!-- Popup for photo description -->
+    <div class="popup" id="popup">
+      <span class="popup-close" onclick="closePopup()">×</span>
+      <h2 id="popup-title"></h2>
+      <p id="popup-description"></p>
+    </div>
+
+    <div class="calendar">
+      <div class="month-nav">
+        <button onclick="prevMonth()">◄</button>
+        <h2 id="current-month"></h2>
+        <button onclick="nextMonth()">►</button>
+      </div>
+      <div id="calendar-dates" class="dates"></div>
+    </div>
+</body>
+<footer>
+    <p>&copy; 2023 Hunkus.com</p>
+</footer>
+
+
+<script>
+const photoData = [
+  { photoName: 'Photo 1', description: 'Description for Photo 1. Date: 2023-10-14', imagePath: 'photos/book.jpg' },
+  { photoName: 'Photo 2', description: 'Description for Photo 2. Date: 2023-10-15', imagePath: 'photos/book.jpg' },
+  { photoName: 'Photo 3', description: 'Description for Photo 3. Date: 2023-10-20', imagePath: 'photos/book.jpg' },
+  { photoName: 'Photo 4', description: 'Description for Photo 4. Date: 2023-10-16', imagePath: 'photos/Hunkus.jpeg' },
+  { photoName: 'Photo 5', description: 'Description for Photo 5. Date: 2023-10-23', imagePath: 'photos/test.png' },
+  { photoName: 'Photo 6', description: 'Description for Photo 6. Date: 2023-10-24', imagePath: 'photos/book.jpg' }
+  // Add more photos as needed
+];
+
+let currentIndex = 0;
+
+function createCarousel() {
+  const carousel = document.querySelector('.carousel');
+
+  for (let i = currentIndex; i < currentIndex + 3; i++) {
+    if (i >= photoData.length) {
+      break;
+    }
+
+    const image = document.createElement('img');
+    image.src = photoData[i].imagePath;
+    image.alt = photoData[i].photoName;
+    image.tabIndex = i === currentIndex + 1 ? 0 : -1;
+
+    image.addEventListener('click', () => {
+      showPopup(photoData[i].photoName, photoData[i].description);
+    });
+
+    carousel.appendChild(image);
+  }
+}
+
+function extractDateFromDescription(description) {
+  const matches = description.match(/Date: (\d{4}-\d{2}-\d{2})/);
+  return matches ? matches[1] : 'No Date';
+}
+
+function showPopup(photoName, description) {
+  const popupTitle = document.getElementById('popup-title');
+  const popupDescription = document.getElementById('popup-description');
+
+  popupTitle.innerText = photoName;
+  popupDescription.innerText = description;
+
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+}
+
+function closePopup() {
+  const popup = document.getElementById('popup');
+  popup.style.display = 'none';
+}
+document.addEventListener('keydown', closePopup);
+
+function prevPhoto() {
+  currentIndex = (currentIndex - 1 + photoData.length) % photoData.length;
+  updateCarousel();
+}
+
+function nextPhoto() {
+  currentIndex = (currentIndex + 1) % photoData.length;
+  updateCarousel();
+}
+
+function updateCarousel() {
+  const carousel = document.querySelector('.carousel');
+  carousel.innerHTML = '';  // Clear existing content
+
+  for (let i = currentIndex - 1; i <= currentIndex + 1; i++) {
+    const index = (i + photoData.length) % photoData.length;  // Handle wrapping
+
+    const image = document.createElement('img');
+    image.src = photoData[index].imagePath;
+    image.alt = photoData[index].photoName;
+    image.tabIndex = (index === currentIndex) ? 0 : -1;
+
+    image.addEventListener('click', () => {
+      showPopup(photoData[index].photoName, photoData[index].description);
+    });
+
+    carousel.appendChild(image);
+  }
+
+  updateFocus();
+}
+
+function updateFocus() {
+  const images = document.querySelectorAll('.carousel img');
+  images.forEach((img, index) => {
+    img.tabIndex = (index === 1) ? 0 : -1;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  createCarousel();
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'ArrowLeft') {
+    prevPhoto();
+  } else if (event.key === 'ArrowRight') {
+    nextPhoto();
+  }
+});
+
+
+const monthNames = [
+    'January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December'
+  ];
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+
+function extractDatesFromPhotoData() {
+  const dates = photoData.map(photo => {
+    const matches = photo.description.match(/Date: (\d{4}-\d{2}-\d{2})/);
+    return matches ? matches[1] : null;
+  });
+  return dates.filter(date => date !== null);
+}
+
+const photoDates = extractDatesFromPhotoData();
+let currentMonth = 9;
+// Function to update the calendar
+function updateCalendar() {
+  const calendarDates = document.getElementById('calendar-dates');
+  calendarDates.innerHTML = ''; // Clear existing dates
+
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = currentMonth;  // Use the specified month
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateDiv = document.createElement('div');
+    dateDiv.classList.add('date');
+    dateDiv.innerText = i;
+
+    // Check if the date has a photo
+    const dateString = `${year}-${(month + 1).toString().padStart(2, '0')}-${i.toString().padStart(2, '0')}`;
+    if (photoDates.includes(dateString)) {
+      const dot = document.createElement('span');
+      dot.classList.add('dot');
+      dateDiv.appendChild(dot);
+    }
+
+    calendarDates.appendChild(dateDiv);
+  }
+
+  // Update the displayed month
+  document.getElementById('current-month').innerText = `${monthNames[month]} ${year}`;
+}
+
+// Rest of your code...
+
+
+// Call this function to initially update the calendar
+updateCalendar();
+
+    function prevMonth() {
+      currentMonth = (currentMonth - 1 + 12) % 12;
+      updateCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth = (currentMonth + 1) % 12;
+      updateCalendar();
+    }
+  </script>
+</body>
+</html>
+
+

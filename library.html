@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library - Hunkus.com</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Additional CSS for yellow stars */
+    .rating span {
+      color: yellow;
+
+    }
+
+
+.library-grid {
+  display: grid;
+  margin-top: 0px;
+  margin-left: 0px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 50px;
+  /* background-color: #4850ca;
+  padding: 200px;  Adjust the padding */
+}
+
+.library-container h2 {
+  color: #ffffff; /* Yellow color */
+}
+
+.library-container {
+  background-color: #4850ca;
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin: 10px 0;
+  width: 80%;
+  max-width: 1370px;
+}
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #ccc;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  width: 80%;
+  max-width: 600px;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 40px;
+}
+
+.popup-close:hover {
+  color: red;
+}
+  </style>
+  
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <img src="photos/Hunkus.jpeg" alt="Your Logo">
+  </div>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="library.html">Library</a></li>
+      <li><a href="todo.html">To-Do</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+  </nav>
+</header>
+
+<!---->
+<main>
+  <div class="library-container">
+    <h2>Library</h2> 
+    <section class="library-grid" id="libraryGrid">
+      <!-- Your library grid items go here -->
+    </section>
+  </div>
+  
+  <div class="popup" id="popup">
+    <span class="popup-close" onclick="closePopup()">×</span>
+    <h2 id="popup-title"></h2>
+    <p id="popup-review"></p>
+  </div>
+</main>
+
+
+
+<footer>
+  <p>&copy; 2023 Hunkus.com</p>
+</footer>
+
+<script>
+const libraryData = [
+  "Oppenheimer-3-cover_art/oppenheimer.jpg-PopupTitleOppenheimer-PopupDescriptionI didn’t really enjoy this movie. Artistically I thought it was beautiful to look at but shallow in terms of material. Maybe not shallow but not what I expected. I wanted to feel the urgency of World War 2, and see what it was like during the development of the bomb. They focused too much on the security clearance thing or whatever stuart or rdj role was. Also it cut scenes every 2 seconds and it was a 3 hour long movie. That is too long. ",
+  //FORMAT
+  //"BookName2-4-photos/book.jpg-PopupTitle2-PopupDescription2",
+  "Barbie-3-cover_art/barbie.jpg-PopupTitleBarbie-PopupDescription I thought it had funny moments, but I was bored for most of it. I dont really know why. In terms of the message, I think it had some interesting ideas, but nothing very profound for me.",
+  "Spiderverse-5-cover_art/spiderverse.jpg-PopupTitleSpider Man Into the Spiderverse-PopupDescriptionIt was a good movie. Nothing to say but I enjoyed it."
+  // Add more entries in the same format
+];
+
+const libraryGrid = document.getElementById('libraryGrid');
+
+libraryData.forEach(item => {
+  const [name, rating, imagePath, popupTitle, popupDescription] = item.split('-');
+
+  const libraryItem = document.createElement('div');
+  libraryItem.classList.add('library-item');
+
+  const coverImage = document.createElement('img');
+  coverImage.src = imagePath;
+  coverImage.alt = `${name} Cover`;
+  coverImage.classList.add('cover');
+  libraryItem.appendChild(coverImage);
+
+  const ratingElement = document.createElement('div');
+  ratingElement.classList.add('rating');
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement('span');
+    if (i <= parseInt(rating)) {
+      star.innerHTML = '&#9733;';
+    } else {
+      star.innerHTML = '&#9734;';
+    }
+    ratingElement.appendChild(star);
+  }
+  libraryItem.appendChild(ratingElement);
+
+  // Add onclick event to show the popup
+  libraryItem.onclick = () => showPopup(`${name}-${popupTitle}-${popupDescription}`);
+
+  libraryGrid.appendChild(libraryItem);
+});
+
+// Rest of your functions (showPopup, closePopup) remain the same
+
+
+
+  function showPopup(data) {
+  const popup = document.getElementById('popup');
+  const popupTitle = document.getElementById('popup-title');
+  const popupReview = document.getElementById('popup-review');
+
+  const [title, review] = data.split('-PopupTitle')[1].split('-PopupDescription');
+  
+  popupTitle.innerText = title;
+  popupReview.innerText = review;
+
+  popup.style.display = 'block';
+}
+
+function closePopup() {
+  const popup = document.getElementById('popup');
+  popup.style.display = 'none';
+}
+
+document.addEventListener('keydown', closePopup);
+
+</script>
+
+</body>
+</html>

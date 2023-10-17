@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo Board</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Make sure to link your CSS file -->
+</head>
+<body>
+<style>
+    .board {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+  color: black;
+}
+
+.column {
+  background-color: #f4f6f8;
+  border: 2px solid #d1d8e0;
+  padding: 20px;
+  width: 350px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: auto;
+  max-height: 600px; /* Adjust max height as needed */
+  margin: 0 10px;
+}
+
+.sticky-note {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  color: black;
+  padding: 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.sticky-note p {
+  margin: 0;
+  font-weight: bold;
+  position: relative;
+}
+
+.sticky-note .progress-bar {
+  position: absolute;
+  top: 0;
+  left: 3px;
+  height: 2px; /* Adjust the height of the progress bar */
+  width: var(--progress, 0%);
+  border-radius: 15px; /* Adjust the border radius */
+  background: linear-gradient(to right,
+    #FF0000 0%,       /* Red for 0% progress */
+    #FF7F00 25%,      /* Orange for 25% progress */
+    #FFFF00 50%,      /* Yellow for 50% progress */
+    #00FF00 75%,      /* Green for 75% progress */
+    #0000FF 100%);    /* Blue for 100% progress */
+}
+
+
+
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  background: rgb(255, 255, 255);
+  color: #000000;
+  border: 2px solid #cccccc;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  width: 80%; /* Adjust width as needed */
+  max-width: 600px; /* Maximum width */
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 60px;
+}
+
+.popup-close:hover {
+  color: red;
+}
+
+</style>
+
+<!-- ... Header and other HTML elements ... -->
+<header>
+    <div class="logo">
+      <img src="photos/Hunkus.jpeg" alt="Your Logo">
+    </div>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="library.html">Library</a></li>
+        <li><a href="todo.html">To-Do</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+      </ul>
+    </nav>
+  </header>
+
+<main>
+    <div class="board">
+      <div class="column" id="todoColumn" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>To Do</h2>
+        <!-- Tasks will be added here -->
+      </div>
+
+      <div class="column" id="doingColumn" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>Doing</h2>
+        <!-- Tasks will be added here -->
+      </div>
+
+      <div class="column" id="doneColumn" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <h2>Done</h2>
+        <!-- Tasks will be added here -->
+      </div>
+    </div>
+
+    <div class="popup" id="popup">
+        <span class="popup-close" onclick="closePopup()">×</span>
+        <h2 id="popup-title"></h2>
+        <p id="popup-progress"></p>
+        <p id="popup-description"></p>
+      </div>
+</main>
+  
+
+<!-- ... Footer ... -->
+<footer>
+    <p>&copy; 2023 Hunkus.com</p>
+</footer>
+
+<script>
+const tasks = [
+  { taskTitle: 'Emerald Quest', descriptions: ['Need to work on expanding dialogue.','Need to work on gambling (horse racing, and blackjack)'], category: 'todo', progress: 10 },
+  { taskTitle: 'Adding recipes to chef arsenal', descriptions: ['Need to expand flavor town to hold more good meals'], category: 'todo', progress: 20 },
+  { taskTitle: 'Relaunch development of Kunkys Jungle', descriptions: ['Got to retry my strategy game because that is what my imagination calls for me to do'], category: 'todo', progress: 5 },
+  { taskTitle: 'Improve mathematics skills', descriptions: ['Got to expand the brain into giga brain. Stunt on them hoes. Find a way to improve and hone skills or else accept that it to be lost from memory.'], category: 'todo', progress: 20 },
+  { taskTitle: 'Begin work on a novel', descriptions: ['I hope it will be grand. But I dont know if I have the writing skills. Keep in the back of head. Important thing to keep of note is that nothing will come of nothing.'], category: 'todo', progress: 5 },
+  { taskTitle: 'Arduino-PI weather thing', descriptions: [' Hardware done and it can communicate between PI and Arduino but I need to get the Arduino software compiler to be able to run in the terminal so I can create a bash or shell script.'], category: 'todo', progress: 30 },
+  { taskTitle: 'Writing ch 6', descriptions: ['Almost to the end of the year. Doesn’t really matter if you achieve your goal or not. You’ve done enough'], category: 'doing', progress: 80 },
+  { taskTitle: 'Reading lots of books', descriptions: ['Almost to the end of the year. Doesn’t really matter if you achieve your goal or not. You’ve done enough.'], category: 'doing', progress: 70 },
+  { taskTitle: 'Running', descriptions: ['With the new treadmill its hard to measure how I have improved. Though it is hard to go everyday, and to increase speed without wrecking my body. I think a good goal to have is to try and achieve 3 miles under 30 mins. That would be a good healthy workout. A 5k a day keeps the doctor away.'], category: 'doing', progress: 60 },
+  { taskTitle: 'Hunkus.com 2.0', descriptions: ['Thanks to the brilliant work of chat gpt we were able to redo hunkus.com into an exciting and useful website.','All that is left is to touch up on the design choices.'], category: 'done', progress: 80 },
+  // Add more tasks as needed
+];
+
+function createStickyNotes() {
+  const todoColumn = document.getElementById('todoColumn');
+  const doingColumn = document.getElementById('doingColumn');
+  const doneColumn = document.getElementById('doneColumn');
+
+  tasks.forEach((task, index) => {
+    const stickyNote = document.createElement('div');
+    stickyNote.classList.add('sticky-note');
+    stickyNote.onclick = function() {
+      showPopup(task.taskTitle, task.descriptions, task.progress);
+    };
+
+    const progressBar = document.createElement('div');
+    progressBar.classList.add('progress-bar');
+    progressBar.style.setProperty('--progress', task.progress + '%');
+
+    const taskTitle = document.createElement('p');
+    taskTitle.innerText = task.taskTitle;
+
+    stickyNote.appendChild(progressBar);
+    stickyNote.appendChild(taskTitle);
+
+    if (task.category === 'todo') {
+      todoColumn.appendChild(stickyNote);
+    } else if (task.category === 'doing') {
+      doingColumn.appendChild(stickyNote);
+    } else if (task.category === 'done') {
+      doneColumn.appendChild(stickyNote);
+    }
+  });
+}
+
+function showPopup(taskTitle, descriptions, progress) {
+  const popupTitle = document.getElementById('popup-title');
+  const popupDescription = document.getElementById('popup-description');
+  const popupProgress = document.getElementById('popup-progress');
+
+  popupTitle.innerText = taskTitle;
+  popupDescription.innerHTML = ''; // Clear previous content
+
+  const descriptionList = document.createElement('ul');
+  descriptions.forEach(description => {
+    const bulletPoint = document.createElement('li');
+    bulletPoint.innerText = description;
+    descriptionList.appendChild(bulletPoint);
+  });
+
+  popupDescription.appendChild(descriptionList);
+  popupProgress.innerText = `Progress: ${progress}%`;
+
+  const popup = document.getElementById('popup');
+  popup.style.display = 'block';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  createStickyNotes();
+});
+
+function closePopup() {
+  const popup = document.getElementById('popup');
+  popup.style.display = 'none';
+}
+
+document.addEventListener('keydown', closePopup);
+
+</script>
+</body>
+</html>
